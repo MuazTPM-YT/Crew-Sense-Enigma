@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1302</width>
+    <height>817</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Text to Speech</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTextEdit" name="Inputbox">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>130</y>
+      <width>1021</width>
+      <height>421</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Switzer</family>
+      <pointsize>18</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QTextEdit {
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 15px;
+                margin: 10px;
+                color: #ffffff;
+            }</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="speak_button">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>600</y>
+      <width>271</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Switzer</family>
+      <pointsize>19</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 17px;
+                margin: 10px;
+                color: #ffffff;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            QPushButton:pressed {
+                background-color: rgba(255, 255, 255, 0.3);
+            }</string>
+    </property>
+    <property name="text">
+     <string>Speak</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="open_pdf_button">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>600</y>
+      <width>271</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Switzer</family>
+      <pointsize>19</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 17px;
+                margin: 10px;
+                color: #ffffff;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            QPushButton:pressed {
+                background-color: rgba(255, 255, 255, 0.3);
+            }</string>
+    </property>
+    <property name="text">
+     <string>Open PDF</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="backbutt_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>101</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Switzer</family>
+      <pointsize>15</pointsize>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 15px;
+                margin: 10px;
+                color: #ffffff;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            QPushButton:pressed {
+                background-color: rgba(255, 255, 255, 0.3);
+            }</string>
+    </property>
+    <property name="text">
+     <string>Back</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1302</width>
+     <height>33</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
