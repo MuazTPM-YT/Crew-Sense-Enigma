@@ -1,0 +1,144 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
+  <title>Crew Sense</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/buttons.css' %}">
+  <script src="{% static 'js/script.js' %}" defer></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  {% csrf_token %}
+</head>
+<body>
+  <div class="navbar">
+    <div class="brand">Crew Sense</div>
+  </div>
+  
+  <!-- Tab Container -->
+  <div class="tab-container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-link active" onclick="openTab(event, 'text')">Text</button>
+      <button class="tab-link" onclick="openTab(event, 'image')">Image</button>
+      <button class="tab-link" onclick="openTab(event, 'documents')">Documents</button>
+    </div>
+    
+    <!-- Language Container -->
+    <div class="lang-tab-container">
+      <!-- Left Language Buttons -->
+      <div class="left-language-container">
+        <button class="language-button selected" id="left-english-btn">English</button>
+        <button class="language-button" id="left-braille-btn">Braille</button>
+      </div>
+      
+      <!-- Right Language Buttons -->
+      <div class="right-language-container">
+        <button class="language-button" id="right-english-btn">English</button>
+        <button class="language-button selected" id="right-braille-btn">Braille</button>
+      </div>
+    </div>
+    
+    
+    <!-- Tab Content -->
+    <div id="text" class="tab-content">
+      <div class="content-area">
+          <!-- Left Content Box -->
+        {% csrf_token %}
+        <div class="content-box-left">
+          <textarea class="text-input" placeholder="Type here..."></textarea>
+          <button class="listen-button">
+
+            <div class="icon">
+              {% load static %}
+              <img src="{% static 'assets/Speaker.svg' %}" alt="Speaker Icon" id="tss-button">
+            </div>
+            <div class="label"></div>
+          </button>
+        </div>
+        
+        <!-- Right Content Box -->
+        <div class="content-box-right">
+          <textarea class="text-output" placeholder="Translation"></textarea>
+          <button class="copy-button" id="copyButton">
+            <div class="icon">
+              {% load static %}
+              <img src="{% static 'assets/Copy.svg' %}" alt="Copy Icon" id="iconImage">
+            </div>
+            <div class="label"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="image" class="tab-content" style="display: none;">
+      <div class="content-area">
+          <!-- Left Content Box -->
+          <div class="content-box-left" id="docs-tabs">
+              <div class="upload-box">
+                  <label for="imageInput" class="upload-label">
+                      <img src="{% static 'assets/Upload.svg' %}" alt="Upload Icon" id="UploadIcon">
+                      <div class="drag-drop">Supported file types: .jpg, .jpeg, .png</div>
+                  </label>
+                  <!-- Correct input type for images -->
+                  <input type="file" id="imageInput" class="image-input" accept=".png, .jpg, .jpeg">
+              </div>
+          </div>
+  
+          <!-- Right Content Box -->
+          <div class="content-box-right">
+              <textarea class="text-output" placeholder="Translation"></textarea>
+              <button class="copy-button" id="copyButton">
+                  <div class="icon">
+                      {% load static %}
+                      <img src="{% static 'assets/Copy.svg' %}" alt="Copy Icon" id="iconImage">
+                  </div>
+                  <div class="label"></div>
+              </button>
+          </div>
+      </div>
+  </div>
+  
+  <div id="documents" class="tab-content" style="display: none;">
+      <div class="content-area">
+          <!-- Left Content Box -->
+          <div class="content-box-left" id="docs-tabs">
+              <div class="upload-box">
+                  <label for="fileInput" class="upload-label">
+                      <img src="{% static 'assets/Upload.svg' %}" alt="Upload Icon" id="UploadIcon">
+                      <div class="drag-drop">Supported file types: .docx, .pdf</div>
+                  </label>
+                  <!-- Correct input type for documents -->
+                  <input type="file" id="fileInput" class="file-input" accept=".docx, .pdf">
+              </div>
+          </div>
+  
+          <!-- Right Content Box -->
+          <div class="content-box-right">
+              <textarea class="text-output" placeholder="Translation"></textarea>
+              <button class="copy-button" id="copyButton">
+                  <div class="icon">
+                      {% load static %}
+                      <img src="{% static 'assets/Copy.svg' %}" alt="Copy Icon" id="iconImage">
+                  </div>
+                  <div class="label"></div>
+              </button>
+          </div>
+      </div>
+  </div>
+  
+  <div class="init-tab-container">
+    <button class="print-button">Print</button>
+  </div>
+
+  <script>
+    const staticCheckUrl = "{% static 'assets/Check.svg' %}";
+    const csrfToken = "{{ csrf_token }}";
+  </script>
+</body>
+</html>
