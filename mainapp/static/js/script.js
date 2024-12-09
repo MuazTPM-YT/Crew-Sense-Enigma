@@ -256,75 +256,118 @@ $(document).ready(function () {
       }
     });
   });
-  
+
   $(document).ready(function () {
-    // Initialize Web Speech API
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.continuous = true; // Allow continuous listening
-    recognition.interimResults = false;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    // Start recognition
-    recognition.start();
-    console.log("Listening for 'Baymaps'...");
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        const $textInput = $('.content-box-left .text-input');
+        const $textOutput = $('.content-box-right .text-output');
+        const $starttext = 'Recording Started';
+        const $stoptext = 'Recording Stopped';
 
-    // Handle recognition results
-    recognition.onresult = function (event) {
-        const spokenText = event.results[event.results.length - 1][0].transcript.trim();
-        console.log(`Heard: ${spokenText}`);
+        recognition.continuous = true; // Keep listening until stopped
+        recognition.interimResults = true; // Show partial results
+        recognition.lang = 'en-US'; // Set language to English
 
-        // Check if the trigger word "Baymaps" is called
-        if (spokenText.toLowerCase().startsWith("baymaps translate")) {
-            const textToTranslate = spokenText
-                .toLowerCase()
-                .replace("baymaps translate ", "")
-                .replace(" to braille", "");
+        // Start recognition
+        function startRecognition() {
+            recognition.start();
+            console.log('Speech recognition started.');
+        }
 
-            console.log(`Extracted text: ${textToTranslate}`);
+        // Stop recognition
+        function stopRecognition() {
+            recognition.stop();
+            console.log('Speech recognition stopped.');
+        }
 
-            // Update the English input box
-            $("#english-input").val(textToTranslate);
-
-            // Send text to the Django backend
+        // Translate text to Braille
+        function translateTextToBraille(text) {
             $.ajax({
-                url: "/translate/",
-                type: "POST",
-                data: {
-                    text: textToTranslate,
-                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+                url: '/convert-text-to-braille/',
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Adjust according to your setup
                 },
+                data: JSON.stringify({ text: text, mode: 'text_to_braille' }),
+                contentType: 'application/json',
                 success: function (response) {
-                    // Update the Braille output
-                    $("#braille-output").val(response.braille);
-
-                    // Provide feedback to the user
-                    speakFeedback(`Translated '${textToTranslate}' into Braille.`);
+                    $textOutput.val(response.output);
                 },
-                error: function () {
-                    alert("Error translating text!");
-                }
+                error: function (error) {
+                    console.error('Error translating text to Braille:', error);
+                    $textOutput.val('Error translating text.');
+                },
             });
         }
-    };
 
-    recognition.onerror = function (event) {
-        console.error("Speech recognition error:", event.error);
-        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-            alert("Microphone access is required for Baymaps to function.");
+        // Process speech results
+        function printOutput() {
+            const outputContent = $textOutput.val();
+            if ($.trim(outputContent)) {
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Print Output</title>
+                        </head>
+                        <body>
+                            <pre>${outputContent}</pre>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
+            } else {
+                alert('No output available to print.');
+            }
         }
-    };
 
-    // Restart recognition when it stops
-    recognition.onend = function () {
-        console.log("Recognition stopped. Restarting...");
-        recognition.start();
-    };
+        // Process speech results
+        recognition.onresult = function (event) {
+            const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+            console.log(`Recognized: ${transcript}`);
 
-    // Feedback function
-    function speakFeedback(message) {
-        const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance(message);
-        synth.speak(utterance);
+            if (transcript.startsWith('hey maps translate')) {
+                const textToTranslate = transcript.replace('hey maps translate', '').trim();
+                $textInput.val(textToTranslate);
+                translateTextToBraille(textToTranslate);
+            } else if (transcript === 'hey maps print it') {
+                printOutput();
+            } else {
+                console.log('No matching command recognized.');
+            }
+        };
+
+        // Handle errors
+        recognition.onerror = function (event) {
+            console.error(`Speech recognition error: ${event.error}`);
+        };
+
+        // Handle recognition end
+        recognition.onend = function () {
+            console.log('Speech recognition ended.');
+        };
+
+        // Keydown event listener for Shift + F and Shift + J
+        $(document).on('keydown', function (event) {
+            if (event.shiftKey && event.key.toLowerCase() === 'f') {
+                event.preventDefault(); // Prevent default behavior for this key combination
+                startRecognition();
+                const speech = new SpeechSynthesisUtterance($starttext);
+                window.speechSynthesis.speak(speech);
+            } else if (event.shiftKey && event.key.toLowerCase() === 'j') {
+                event.preventDefault(); // Prevent default behavior for this key combination
+                stopRecognition();
+                const speech = new SpeechSynthesisUtterance($stoptext);
+                window.speechSynthesis.speak(speech);
+            }
+        });
+    } else {
+        alert('Sorry, your browser does not support speech recognition.');
     }
 });
 

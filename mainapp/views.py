@@ -184,13 +184,3 @@ def extract_text_from_image(image_path):
     # Use pytesseract to extract text
     text = pytesseract.image_to_string(thresh_image)
     return text.strip()
-
-def translate_to_braille(text):
-    return ''.join(braille_dict.get(char, char) for char in text)
-
-def translate(request):
-    if request.method == "POST":
-        text = request.POST.get("text", "")
-        braille_translation = translate_to_braille(text)
-        return JsonResponse({"braille": braille_translation})
-    return JsonResponse({"error": "Invalid request"}, status=400)
