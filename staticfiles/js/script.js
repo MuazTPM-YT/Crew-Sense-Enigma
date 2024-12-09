@@ -337,6 +337,10 @@ $(document).ready(function () {
                 translateTextToBraille(textToTranslate);
             } else if (transcript === 'hey maps print it') {
                 printOutput();
+            } else if (transcript === 'hey maps clear') {
+                $textInput.val('');
+                $textOutput.val('');
+                translateTextToBraille(textToTranslate);
             } else {
                 console.log('No matching command recognized.');
             }
