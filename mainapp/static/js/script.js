@@ -256,4 +256,162 @@ $(document).ready(function () {
       }
     });
   });
-  
+
+  $(document).ready(function () {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        const $textInput = $('.content-box-left .text-input');
+        const $textOutput = $('.content-box-right .text-output');
+        const $starttext = 'Recording Started';
+        const $stoptext = 'Recording Stopped';
+
+        recognition.continuous = true; // Keep listening until stopped
+        recognition.interimResults = true; // Show partial results
+        recognition.lang = 'en-US'; // Set language to English
+
+        // Start recognition
+        function startRecognition() {
+            recognition.start();
+            console.log('Speech recognition started.');
+        }
+
+        // Stop recognition
+        function stopRecognition() {
+            recognition.stop();
+            console.log('Speech recognition stopped.');
+        }
+
+        // Translate text to Braille
+        function translateTextToBraille(text) {
+            $.ajax({
+                url: '/convert-text-to-braille/',
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Adjust according to your setup
+                },
+                data: JSON.stringify({ text: text, mode: 'text_to_braille' }),
+                contentType: 'application/json',
+                success: function (response) {
+                    $textOutput.val(response.output);
+                },
+                error: function (error) {
+                    console.error('Error translating text to Braille:', error);
+                    $textOutput.val('Error translating text.');
+                },
+            });
+        }
+
+        // Process speech results
+        function printOutput() {
+            const outputContent = $textOutput.val();
+            if ($.trim(outputContent)) {
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Print Output</title>
+                        </head>
+                        <body>
+                            <pre>${outputContent}</pre>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
+            } else {
+                alert('No output available to print.');
+            }
+        }
+
+        // Process speech results
+        recognition.onresult = function (event) {
+            const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+            console.log(`Recognized: ${transcript}`);
+
+            if (transcript.startsWith('translate')) {
+                const textToTranslate = transcript.replace('translate', '').trim();
+                $textInput.val(textToTranslate);
+                translateTextToBraille(textToTranslate);
+
+            } 
+            
+            else if (transcript === 'speak') {
+                const sstext = $textInput.val();
+                if ($textInput) {
+                    try {
+                      const speech = new SpeechSynthesisUtterance(sstext);
+                      window.speechSynthesis.speak(speech);
+                    } catch (e) {
+                      console.error("Error speaking text:", e);
+                    }
+                  } else {
+                    alert("Please enter some text to speak!");
+                  }
+            }
+
+            else if (transcript === 'copy') {
+                const textToCopy = $textOutput.val().trim(); // Get the text from the right content box
+                if (textToCopy) {
+                    navigator.clipboard.writeText(textToCopy)
+                        .then(() => {
+                            console.log('Text copied to clipboard:', textToCopy);
+                            alert('Text copied to clipboard!');
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy text:', err);
+                            alert('Failed to copy text. Please try again.');
+                        });
+                } else {
+                    console.log('No text to copy.');
+                    alert('The right content box is empty. Nothing to copy.');
+                }
+            }
+
+            else if (transcript === 'print') {
+                printOutput();
+            } 
+            
+            else if (transcript === 'clear') {
+                $textInput.val('');
+                $textOutput.val('');
+                translateTextToBraille(textToTranslate);
+
+            } 
+            
+            else {
+                console.log('No matching command recognized.');
+            }
+        };
+
+        // Handle errors
+        recognition.onerror = function (event) {
+            console.error(`Speech recognition error: ${event.error}`);
+        };
+
+        // Handle recognition end
+        recognition.onend = function () {
+            console.log('Speech recognition ended.');
+        };
+
+        // Keydown event listener for Shift + F and Shift + J
+        $(document).on('keydown', function (event) {
+            if (event.shiftKey && event.key.toLowerCase() === 'f') {
+                event.preventDefault(); // Prevent default behavior for this key combination
+                startRecognition();
+                const speech = new SpeechSynthesisUtterance($starttext);
+                window.speechSynthesis.speak(speech);
+            } else if (event.shiftKey && event.key.toLowerCase() === 'j') {
+                event.preventDefault(); // Prevent default behavior for this key combination
+                stopRecognition();
+                const speech = new SpeechSynthesisUtterance($stoptext);
+                window.speechSynthesis.speak(speech);
+            }
+        });
+    } else {
+        alert('Sorry, your browser does not support speech recognition.');
+    }
+});
+
