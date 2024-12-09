@@ -331,17 +331,57 @@ $(document).ready(function () {
             const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
             console.log(`Recognized: ${transcript}`);
 
-            if (transcript.startsWith('hey maps translate')) {
-                const textToTranslate = transcript.replace('hey maps translate', '').trim();
+            if (transcript.startsWith('translate')) {
+                const textToTranslate = transcript.replace('translate', '').trim();
                 $textInput.val(textToTranslate);
                 translateTextToBraille(textToTranslate);
-            } else if (transcript === 'hey maps print it') {
+
+            } 
+            
+            else if (transcript === 'speak') {
+                const sstext = $textInput.val();
+                if ($textInput) {
+                    try {
+                      const speech = new SpeechSynthesisUtterance(sstext);
+                      window.speechSynthesis.speak(speech);
+                    } catch (e) {
+                      console.error("Error speaking text:", e);
+                    }
+                  } else {
+                    alert("Please enter some text to speak!");
+                  }
+            }
+
+            else if (transcript === 'copy') {
+                const textToCopy = $textOutput.val().trim(); // Get the text from the right content box
+                if (textToCopy) {
+                    navigator.clipboard.writeText(textToCopy)
+                        .then(() => {
+                            console.log('Text copied to clipboard:', textToCopy);
+                            alert('Text copied to clipboard!');
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy text:', err);
+                            alert('Failed to copy text. Please try again.');
+                        });
+                } else {
+                    console.log('No text to copy.');
+                    alert('The right content box is empty. Nothing to copy.');
+                }
+            }
+
+            else if (transcript === 'print') {
                 printOutput();
-            } else if (transcript === 'hey maps clear') {
+            } 
+            
+            else if (transcript === 'clear') {
                 $textInput.val('');
                 $textOutput.val('');
                 translateTextToBraille(textToTranslate);
-            } else {
+
+            } 
+            
+            else {
                 console.log('No matching command recognized.');
             }
         };
