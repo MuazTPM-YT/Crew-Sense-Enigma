@@ -257,3 +257,74 @@ $(document).ready(function () {
     });
   });
   
+  $(document).ready(function () {
+    // Initialize Web Speech API
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.continuous = true; // Allow continuous listening
+    recognition.interimResults = false;
+
+    // Start recognition
+    recognition.start();
+    console.log("Listening for 'Baymaps'...");
+
+    // Handle recognition results
+    recognition.onresult = function (event) {
+        const spokenText = event.results[event.results.length - 1][0].transcript.trim();
+        console.log(`Heard: ${spokenText}`);
+
+        // Check if the trigger word "Baymaps" is called
+        if (spokenText.toLowerCase().startsWith("baymaps translate")) {
+            const textToTranslate = spokenText
+                .toLowerCase()
+                .replace("baymaps translate ", "")
+                .replace(" to braille", "");
+
+            console.log(`Extracted text: ${textToTranslate}`);
+
+            // Update the English input box
+            $("#english-input").val(textToTranslate);
+
+            // Send text to the Django backend
+            $.ajax({
+                url: "/translate/",
+                type: "POST",
+                data: {
+                    text: textToTranslate,
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+                },
+                success: function (response) {
+                    // Update the Braille output
+                    $("#braille-output").val(response.braille);
+
+                    // Provide feedback to the user
+                    speakFeedback(`Translated '${textToTranslate}' into Braille.`);
+                },
+                error: function () {
+                    alert("Error translating text!");
+                }
+            });
+        }
+    };
+
+    recognition.onerror = function (event) {
+        console.error("Speech recognition error:", event.error);
+        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+            alert("Microphone access is required for Baymaps to function.");
+        }
+    };
+
+    // Restart recognition when it stops
+    recognition.onend = function () {
+        console.log("Recognition stopped. Restarting...");
+        recognition.start();
+    };
+
+    // Feedback function
+    function speakFeedback(message) {
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(message);
+        synth.speak(utterance);
+    }
+});
+
